@@ -1,16 +1,27 @@
 # importing Required Libraries
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI,    Request
 from BankNotes import BankNote
 import pickle
 import pandas as pd
 import numpy as np
-
+import os
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 # starting fastapi app
+
+
 
 app = FastAPI()
 pickle_in = open('rf_model.pkl', 'rb')
 rff = pickle.load(pickle_in)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/")
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # index route
 @app.get('/')
