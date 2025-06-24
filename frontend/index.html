@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bank Note Predictor</title>
+</head>
+<body>
+  <h2>Bank Note Prediction</h2>
+
+  <label>Variance:</label>
+  <input id="variance" type="number" step="any"><br><br>
+
+  <label>Skewness:</label>
+  <input id="skewness" type="number" step="any"><br><br>
+
+  <label>Curtosis:</label>
+  <input id="curtosis" type="number" step="any"><br><br>
+
+  <label>Entropy:</label>
+  <input id="entropy" type="number" step="any"><br><br>
+
+  <button onclick="sendData()">Predict</button>
+
+  <h3 id="result"></h3>
+
+  <script>
+    async function sendData() {
+      const data = {
+        variance: parseFloat(document.getElementById("variance").value),
+        skewness: parseFloat(document.getElementById("skewness").value),
+        curtosis: parseFloat(document.getElementById("curtosis").value),
+        entropy: parseFloat(document.getElementById("entropy").value)
+      };
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        document.getElementById("result").innerText = "Prediction: " + result.prediction;
+      } catch (error) {
+        document.getElementById("result").innerText = "Error: " + error;
+      }
+    }
+  </script>
+</body>
+</html>
