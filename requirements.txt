@@ -3,5 +3,6 @@ uvicorn
 pydantic
 pandas
 numpy
+aiofiles
 scikit-learn
 jinja2
