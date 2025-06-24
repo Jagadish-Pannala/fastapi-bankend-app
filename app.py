@@ -19,7 +19,7 @@ rff = pickle.load(pickle_in)
 
 # Mount static and template folders
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="frontend")
 
 # Enable CORS (for frontend integration if needed)
 app.add_middleware(
