@@ -1,6 +1,7 @@
-# importing Required Libraries
+# app.py
+
 import uvicorn
-from fastapi import FastAPI,    Request
+from fastapi import FastAPI, Request
 from BankNotes import BankNote
 import pickle
 import pandas as pd
@@ -8,34 +9,42 @@ import numpy as np
 import os
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-# starting fastapi app
-
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Load ML model
 pickle_in = open('rf_model.pkl', 'rb')
 rff = pickle.load(pickle_in)
 
+# Mount static and template folders
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# Enable CORS (for frontend integration if needed)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routes
 @app.get("/")
-def read_root(request: Request):
+def render_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# index route
-@app.get('/')
+@app.get("/hello")
 def index():
-    return {'message' : 'Hello World'}
+    return {'message': 'Hello World'}
 
-# name route
 @app.get('/{name}')
-def get_name(name:str):
-    return {'Welcome to Fastapi app' : f"{name} Reddy"}
+def get_name(name: str):
+    return {'Welcome to Fastapi app': f"{name} Reddy"}
 
-# expose predict functionality
 @app.post('/predict')
-def predict_BankNote(data:BankNote):
+def predict_BankNote(data: BankNote):
     data = data.dict()
     variance = data['variance']
     skewness = data['skewness']
@@ -44,25 +53,11 @@ def predict_BankNote(data:BankNote):
 
     prediction = rff.predict([[variance, skewness, curtosis, entropy]])
 
-    if prediction[0]>0.5:
-        prediction = 'Fake Note'
+    if prediction[0] > 0.5:
+        result = 'Fake Note'
     else:
-        prediction = "Bank Note"
-    return{
-        "prediction" : prediction
-    }
-# 5. Run the API with uvicorn
-#    Will run on http://127.0.0.1:8000
-if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000)
-    
-#uvicorn app:app --reload
-from fastapi.middleware.cors import CORSMiddleware
+        result = "Bank Note"
+    return {"prediction": result}
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Or specify ["http://localhost"] for safety
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Do not run uvicorn here on Render
+# Render uses startCommand: uvicorn app:app --host 0.0.0.0 --port 10000

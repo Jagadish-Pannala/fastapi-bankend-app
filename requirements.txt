@@ -1,8 +1,7 @@
 fastapi
 uvicorn
-pydantic
+jinja2
 pandas
 numpy
+scikit-learn==1.6.1  # Match the version used to pickle
 aiofiles
-scikit-learn
-jinja2
